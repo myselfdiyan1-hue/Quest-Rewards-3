@@ -45,8 +45,7 @@ jobs:
           fi
           echo "PROJECT_DIR=$(dirname "$FILE")" >> $GITHUB_ENV
 
-      
-            - name: Generate Debug Keystore
+      - name: Generate Debug Keystore
         run: |
           keytool -genkeypair -v \
             -keystore "$PROJECT_DIR/debug.keystore" \
@@ -57,11 +56,8 @@ jobs:
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000
-      
-      
-      
-      
-       - name: Build APK
+
+      - name: Build APK
         run: |
           cd "$PROJECT_DIR"
           gradle assembleDebug

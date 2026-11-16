@@ -26,24 +26,22 @@ jobs:
         with:
           gradle-version: '9.3.1'
 
-      - name: Generate Debug Keystore
+      - name: Find Android Project
         run: |
-          keytool -genkeypair -v \
-            -keystore debug.keystore \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -dname "CN=Android Debug,O=Android,C=US" \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000
+          FILE=$(find . -name settings.gradle.kts -not -path '*/.gradle/*' -print -quit)
+          if [ -z "$FILE" ]; then
+            echo "Gradle project not found!"
+            exit 1
+          fi
+          echo "PROJECT_DIR=$(dirname "$FILE")" >> $GITHUB_ENV
 
       - name: Build APK
-        run: gradle assembleDebug
+        run: |
+          cd "$PROJECT_DIR"
+          gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: GemQuest-APK
-          path: app/build/outputs/apk/debug/*.apk
-          
+          path: '**/app/build/outputs/apk/debug/*.apk'

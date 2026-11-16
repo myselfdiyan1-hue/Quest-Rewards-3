@@ -26,9 +26,19 @@ jobs:
         with:
           gradle-version: '9.3.1'
 
-      - name: Find Android Project
+      - name: Extract Source Code
         run: |
-          FILE=$(find . -name settings.gradle.kts -not -path '*/.gradle/*' -print -quit)
+          ZIP=$(find . -maxdepth 1 -name '*.zip' -print -quit)
+          if [ -z "$ZIP" ]; then
+            echo "Source ZIP not found!"
+            exit 1
+          fi
+          mkdir -p source
+          unzip -q "$ZIP" -d source
+
+      - name: Locate Project
+        run: |
+          FILE=$(find source -name settings.gradle.kts -print -quit)
           if [ -z "$FILE" ]; then
             echo "Gradle project not found!"
             exit 1
@@ -44,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: GemQuest-APK
-          path: '**/app/build/outputs/apk/debug/*.apk'
+          path: source/**/app/build/outputs/apk/debug/*.apk
